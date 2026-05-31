@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ECO-CHALLENGE PRO</title>
+    <style>
+        :root { --neon: #00ff88; --danger: #ff0055; }
+        body { 
+            margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;
+            background: url('1266961-talador.JPG') center/cover fixed; font-family: 'Segoe UI', sans-serif;
+        }
+        .pro-card {
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2); padding: 2.5rem;
+            border-radius: 30px; width: 90%; max-width: 450px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); color: white;
+        }
+        #arbol-display { font-size: 80px; margin: 15px 0; filter: drop-shadow(0 0 10px var(--neon)); transition: 0.5s; }
+        .progress-bar { height: 6px; width: 100%; background: #333; border-radius: 3px; margin: 20px 0; overflow: hidden; }
+        #fill { height: 100%; background: var(--neon); width: 100%; transition: 0.3s; }
+        .btn { 
+            width: 100%; padding: 14px; margin: 8px 0; cursor: pointer; border: none; border-radius: 15px;
+            background: rgba(255,255,255,0.1); color: white; font-weight: bold; transition: 0.3s;
+        }
+        .btn:hover { background: var(--neon); color: black; transform: translateY(-3px); }
+    </style>
+</head>
+<body>
+
+<div class="pro-card">
+    <h1 id="titulo">ECO-DEFENSE</h1>
+    <div id="arbol-display">🪵</div>
+    <div class="progress-bar"><div id="fill"></div></div>
+    <p id="pregunta-texto" style="font-size: 1.2rem; height: 60px;"></p>
+    <div id="opciones"></div>
+</div>
+
+<script>
+    const preguntas = [
+        { q: "¿Gas que absorben los árboles?", opciones: ["CO2", "Oxígeno", "Nitrógeno"], c: "CO2" },
+        { q: "¿Qué evita la erosión del suelo?", opciones: ["Cemento", "Raíces", "Viento"], c: "Raíces" },
+        { q: "¿Acción principal de la deforestación?", opciones: ["Plantar", "Talar", "Podar"], c: "Talar" },
+        { q: "¿El hogar natural de muchas aves?", opciones: ["Edificios", "Árboles", "Desierto"], c: "Árboles" },
+        { q: "¿Qué necesita un árbol para vivir?", opciones: ["Basura", "Luz/Agua", "Plástico"], c: "Luz/Agua" }
+    ];
+
+    let nivel = 0, tiempo, timer;
+    const etapas = ["🪵", "🌱", "🌿", "🌳", "🌸🌳"];
+    const audio = new Audio('sfx-spell-ray-fire.MP3');
+
+    function iniciarReloj() {
+        let maxT = 10 - (nivel * 2);
+        tiempo = maxT;
+        clearInterval(timer);
+        timer = setInterval(() => {
+            tiempo--;
+            document.getElementById('fill').style.width = (tiempo / maxT * 100) + "%";
+            if (tiempo <= 0) { clearInterval(timer); verificar("timeout"); }
+        }, 1000);
+    }
+
+    function cargarPregunta() {
+        iniciarReloj();
+        let p = preguntas[Math.floor(Math.random() * preguntas.length)];
+        document.getElementById('pregunta-texto').innerText = p.q;
+        document.getElementById('opciones').innerHTML = p.opciones.sort(() => Math.random() - 0.5)
+            .map(opt => `<button class="btn" onclick="verificar('${opt}', '${p.c}')">${opt}</button>`).join('');
+    }
+
+    function verificar(sel, corr) {
+        clearInterval(timer);
+        if (sel === corr) {
+            if (nivel < etapas.length - 1) { nivel++; audio.play(); }
+        } else {
+            if (nivel > 0) nivel--;
+            else { alert("¡BOSQUE DESTRUIDO!"); location.reload(); return; }
+        }
+        
+        if (nivel === etapas.length - 1) { alert("¡VICTORIA TOTAL!"); location.reload(); }
+        else {
+            document.getElementById('arbol-display').innerText = etapas[nivel];
+            document.getElementById('arbol-display').style.transform = "scale(1.2)";
+            setTimeout(() => document.getElementById('arbol-display').style.transform = "scale(1)", 200);
+            cargarPregunta();
+        }
+    }
+    cargarPregunta();
+</script>
+</body>
+</html>
